@@ -12,7 +12,7 @@ This repository is a fork of Cheshire for the Celeste flies RISC-V project and p
 * Compile the booting firmware for execution of the gNB on the implemented Cheshire SoC
 
 
-## Dependencies
+### Dependencies
 
 We use Bender as hardware dependencies management tool. Please download a Bender distribution and install it in your `PATH`.
 ```
@@ -32,13 +32,27 @@ cd riscv-gnu-toolchain
 make
 ```
 
-## Build the gnb
+### Build the gNB
 
-This will build the compilation toolchain for Linux and the `gnb` application in the Buildroot environment provided by the CVA6 software-developement kit. Building the `gnb` additionally requires to build and install in the root of Linux image the following dependencies: `fftw`, `mbedtls`, `lksctp-tools`, `yaml-cpp`.
+This will build the compilation toolchain for Linux and the `gnb` application in the Buildroot environment provided by the `./sw/deps/cva6-sdk`. Building the `gnb` additionally requires to build and install in the root of Linux image the following dependencies: `fftw`, `mbedtls`, `lksctp-tools`, `yaml-cpp`.
 
 ```
 git submodule update --init --recursive sw/deps/cva6-sdk
 make gnb
+```
+
+### Build the Linux image
+
+After building the gnb application one can copy it over in the root of the Linux image to be and compile the image through `cva6-sdk`. The generated image will be in `./sw/deps/cva6-sdk/Install64/`.
+
+```
+cd sw/deps/cva6-sdk && make images
+```
+
+This command will generate a `.gpt` formatted image that can be copied in an SD card and booted on the Genesys2 board. More information on how the boot works and how to generate the bitstream for Cheshire can be found here: [Xilinx](https://pulp-platform.github.io/cheshire/tg/xilinx/).
+
+```
+make ${CHS_ROOT}/sw/boot/linux.genesys2.gpt.bin
 ```
 
 ## Other resources
