@@ -45,8 +45,9 @@ GOOGLETEST_DIR := $(BUILD_DIR)/googletest
 
 GNB_DEPS := $(INSTALL_DIR)/install/usr/lib/libfftw3f.so
 GNB_DEPS += $(INSTALL_DIR)/usr/lib/libsctp.so
-GNB_DEPS += $(INSTALL_DIR)/install/usr/lib64/libmbedtls.so
-GNB_DEPS += $(INSTALL_DIR)/install/usr/lib64/libyaml-cpp.so
+GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libmbedtls.so
+GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libyaml-cpp.so
+GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libgtest.a
 
 # Install FFTW
 
@@ -96,7 +97,7 @@ $(INSTALL_DIR)/usr/lib/libsctp.so: $(GNB_TOOLCHAIN)
 
 # Install MBEDTLS
 
-$(INSTALL_DIR)/install/usr/lib64/libmbedtls.so: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/install/usr/lib/libmbedtls.so: $(GNB_TOOLCHAIN)
 	@if [ ! -d "$(MBEDTLS_DIR)" ]; then \
 	    git clone --branch v3.6.3 $(MBEDTLS_URL) $(MBEDTLS_DIR); \
 	else \
@@ -117,7 +118,7 @@ $(INSTALL_DIR)/install/usr/lib64/libmbedtls.so: $(GNB_TOOLCHAIN)
 
 # Install YAML-CPP
 
-$(INSTALL_DIR)/install/usr/lib64/libyaml-cpp.so: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/install/usr/lib/libyaml-cpp.so: $(GNB_TOOLCHAIN)
 	@if [ ! -d "$(YAMLCPP_DIR)" ]; then \
 	    git clone $(YAMLCPP_URL) $(YAMLCPP_DIR); \
 	else \
@@ -163,12 +164,12 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 	cmake $(CELESTE_DIR) \
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_PREFIX_PATH=$(INSTALL_DIR)/usr/ \
-		-DCMAKE_FIND_ROOT_PATH="$(INSTALL_DIR)/usr/" \
+		-DCMAKE_FIND_ROOT_PATH=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_C_COMPILER=$(GNB_CC) \
         -DCMAKE_CXX_COMPILER=$(GNB_CXX) \
 		-DCMAKE_C_FLAGS="-Wno-error=sign-compare -Wno-error=enum-compare -Wno-error=shadow -Wno-error=subobject-linkage" \
 		-DCMAKE_CXX_FLAGS="-Wno-error=sign-compare -Wno-error=enum-compare -Wno-error=shadow -Wno-error=subobject-linkage" \
-        -DCMAKE_EXE_LINKER_FLAGS="-L$(INSTALL_DIR)/usr/lib64 -latomic -pthread" \
+        -DCMAKE_EXE_LINKER_FLAGS="-L$(INSTALL_DIR)/usr/lib -latomic -pthread" \
 		-DCMAKE_TOOLCHAIN_FILE=$(CHS_SW_DIR)/toolchain.cmake \
 		-DENABLE_CROSSCOMPILE=on \
 		-DENABLE_BACKWARD=off \
@@ -181,11 +182,11 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 	cmake --build . --parallel $(shell nproc) && \
 	cmake --install .
 	mkdir -p $(INSTALL_DIR)/usr/share/srsran/benchmarks/
-	find $(CELESTE_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;
-	rsync -a ./install/ $(CVA6_DIR)/rootfs
+	find $(CELESTE_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;		
+	rsync -a $(INSTALL_DIR)/ $(CVA6_DIR)/rootfs/
 
 gnb-clean:
-	rm -rf $(SRSRAN_DIR)/build
-	rm -rf $(SRSRAN_DIR)/install
+	rm -rf $(CELESTE_DIR)/build
+	rm -rf $(CELESTE_DIR)/install
 	make -C $(BUILDROOT_DIR) distclean
 	make -C $(CVA6_DIR) clean
