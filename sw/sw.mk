@@ -128,6 +128,13 @@ $(foreach link,$(CHS_SW_LINK_MODES),$(eval $(call chs_sw_ld_elf_rule,$(link))))
 %.memh: %.elf
 	$(CHS_SW_OBJCOPY) -O verilog $< $@
 
+
+#############################
+# Build Celeste application #
+#############################
+
+include $(CHS_SW_DIR)/celeste.mk
+
 ###################
 # GPT test images #
 ###################

@@ -25,6 +25,8 @@ site/
 *.a
 *.dtb
 sw/deps/.patched
+sw/deps/build
+sw/deps/install
 
 # Test models
 target/sim/models
