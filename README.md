@@ -28,7 +28,7 @@ Fetch required dependencies and install RISC-V gcc cross-compiler in your `PATH`
 ```
 git clone https://github.com/riscv/riscv-gnu-toolchain
 cd riscv-gnu-toolchain
-./configure --prefix=/home/usr/.local/bin
+./configure --prefix=${HOME}/.local/bin
 make
 ```
 
@@ -38,14 +38,22 @@ This will build the compilation toolchain for Linux and the `gnb` application in
 
 ```
 git submodule update --init --recursive sw/deps/cva6-sdk
-make gnb
+git submodule update --init --recursive sw/deps/celeste
+```
+
+Then build the gnb.
+```
+make gnb 
 ```
 
 ### Build the Linux image
 
-After building the gnb application one can copy it over in the root of the Linux image to be and compile the image through `cva6-sdk`. The generated image will be in `./sw/deps/cva6-sdk/Install64/`.
+After building the gnb application one can copy it over in the root of the Linux image to be and compile the image through `cva6-sdk`. The generated image will be in `./sw/deps/cva6-sdk/Install64/`. The cva6-sdk must be patched to account for the larger image size:
 
 ```
+git -C sw/deps/cva6-sdk/u-boot apply sw/deps/cva6-sdk/patches/u-boot.patch
+git -C sw/deps/cva6-sdk/opensbi apply sw/deps/cva6-sdk/patches/opensbi.patch
+git -C sw/deps/cva6-sdk/riscv-isa-sim apply sw/deps/cva6-sdk/patches/riscv-isa-sim.patch
 cd sw/deps/cva6-sdk && make images
 ```
 
@@ -53,6 +61,16 @@ This command will generate a `.gpt` formatted image that can be copied in an SD 
 
 ```
 make ${CHS_ROOT}/sw/boot/linux.genesys2.gpt.bin
+```
+
+## Simulation with Spike
+
+One can also simulate the image with Spike. From the SDK directory:
+
+```
+make isa-sim
+make spike_payload
+make ./Install${XLEN}/bin/spike ./Install${XLEN}/spike_fw_payload.elf
 ```
 
 ## Other resources

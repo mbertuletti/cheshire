@@ -183,7 +183,7 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 	cmake --install .
 	mkdir -p $(INSTALL_DIR)/usr/share/srsran/benchmarks/
 	find $(CELESTE_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;		
-	rsync -a $(INSTALL_DIR)/ $(CVA6_DIR)/rootfs/
+	rsync -a $(INSTALL_DIR)/usr $(CVA6_DIR)/rootfs/usr
 
 gnb-clean:
 	rm -rf $(CELESTE_DIR)/build
