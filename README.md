@@ -51,9 +51,9 @@ make gnb
 After building the gnb application one can copy it over in the root of the Linux image to be and compile the image through `cva6-sdk`. The generated image will be in `./sw/deps/cva6-sdk/Install64/`. The cva6-sdk must be patched to account for the larger image size:
 
 ```
-git -C sw/deps/cva6-sdk/u-boot apply sw/deps/cva6-sdk/patches/u-boot.patch
-git -C sw/deps/cva6-sdk/opensbi apply sw/deps/cva6-sdk/patches/opensbi.patch
-git -C sw/deps/cva6-sdk/riscv-isa-sim apply sw/deps/cva6-sdk/patches/riscv-isa-sim.patch
+git -C sw/deps/cva6-sdk/u-boot apply ../patches/u-boot.patch
+git -C sw/deps/cva6-sdk/opensbi apply ../patches/opensbi.patch
+git -C sw/deps/cva6-sdk/riscv-isa-sim apply ../patches/riscv-isa-sim.patch
 cd sw/deps/cva6-sdk && make images
 ```
 

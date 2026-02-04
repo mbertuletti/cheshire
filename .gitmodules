@@ -8,4 +8,4 @@
 	ignore = dirty
 [submodule "sw/deps/celeste"]
 	path = sw/deps/celeste
-	url = git@github.com:celeste-sat/celeste.git
+	url = https://github.com/celeste-sat/celeste.git
