@@ -73,6 +73,27 @@ make spike_payload
 make ./Install${XLEN}/bin/spike ./Install${XLEN}/spike_fw_payload.elf
 ```
 
+## Build for the target Genesys2 emulation
+
+Make the hardware and software:
+```
+make hw-all
+make sw-all
+```
+
+Build the bitstream. The output bitstream is in `${CHS_ROOT}/target/xilinx/out/cheshire.genesys2.bit`.
+```
+export VIVADO="/path/to/your/vivado"
+make chs-xilinx-genesys2
+```
+
+Build the gpt formatted image (you need to build the Linux image first). Flash the image on SD-card.
+```
+make ${CHS_ROOT}/sw/boot/linux.genesys2.gpt.bin
+sudo dd if=sw/boot/linux.genesys2.gpt.bin of=/dev/<sdcard>
+sudo sgdisk -e /dev/<sdcard>
+```
+
 ## Other resources
 
 * To learn how to build and use Cheshire, see [Getting Started](https://pulp-platform.github.io/cheshire/gs/).
