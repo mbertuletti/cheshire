@@ -4,11 +4,11 @@ Cheshire is a minimal Linux-capable host platform built around the RISC-V [CVA6]
 
 Cheshire is developed as part of the PULP project, a joint effort between ETH Zurich and the University of Bologna.
 
-# Celeste flies RISC-V
+# RISC-V gNB
 
-This repository is a fork of Cheshire for the Celeste flies RISC-V project and provides the tools to:
+This repository is a fork of Cheshire and provides the tools to:
 * Generate Cheshire bitstreams for different FPGA targets (genesys2 and vcu128)
-* Cross-compile a Linux kernel image containing Celeste gNB
+* Cross-compile a Linux kernel image containing srsRAN open-source gNB
 * Compile the booting firmware for execution of the gNB on the implemented Cheshire SoC
 
 
@@ -38,10 +38,10 @@ This will build the compilation toolchain for Linux and the `gnb` application in
 
 ```
 git submodule update --init --recursive sw/deps/cva6-sdk
-git submodule update --init --recursive sw/deps/celeste
+git submodule update --init --recursive sw/deps/srsRAN_Project
 ```
 
-Then build the gnb.
+Then build the gNB.
 ```
 make gnb 
 ```
