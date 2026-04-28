@@ -3,17 +3,18 @@
 # Marco Bertuletti <mbertuletti@iis.ee.ethz.ch>
 
 # Project variables
-CVA6_DIR      := $(CHS_SW_DIR)/deps/cva6-sdk
+CVA6_DIR      := $(abspath $(CHS_SW_DIR)/deps/cva6-sdk)
 BUILDROOT_DIR := $(CVA6_DIR)/buildroot
-BUILD_DIR     := $(CHS_SW_DIR)/deps/build
-INSTALL_DIR   := $(CHS_SW_DIR)/deps/install
-SRSRAN_DIR	  := $(CHS_SW_DIR)/deps/srsRAN_Project
+BUILD_DIR     := $(abspath $(CHS_SW_DIR)/deps/build)
+INSTALL_DIR   := $(abspath $(CHS_SW_DIR)/deps/install)
+SRSRAN_DIR	  := $(abspath $(CHS_SW_DIR)/deps/srsRAN_Project)
+CCACHE_DIR    ?= $(BUILD_DIR)/ccache
 
 # Cross-compiler
-GNB_CC        := $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-gcc
-GNB_CXX       := $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-g++
-GNB_CFLAGS    := "-march=rv64gc -I$(BUILDROOT_DIR)/output/host/include -L$(BUILDROOT_DIR)/output/host/lib"
-GNB_LIBS      := "$(BUILDROOT_DIR)/output/host/lib:$(BUILDROOT_DIR)/output/host/lib64"
+GNB_CC        := $(abspath $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-gcc)
+GNB_CXX       := $(abspath $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-g++)
+GNB_CFLAGS    := -march=rv64gc -I$(BUILDROOT_DIR)/output/host/include
+GNB_LIBS      := $(BUILDROOT_DIR)/output/host/lib:$(BUILDROOT_DIR)/output/host/lib64
 
 # Build toolchain
 GNB_TOOLCHAIN := $(GNB_CC) $(GNB_CXX)
@@ -65,8 +66,8 @@ $(INSTALL_DIR)/usr/lib/libfftw3f.so: $(GNB_TOOLCHAIN)
                 --enable-shared \
                 --enable-float \
 	            CC=$(GNB_CC) \
-	            CFLAGS=$(GNB_CFLAGS) \
-	            LD_LIBRARY_PATH=$(GNB_LIBS)
+	            CFLAGS="$(GNB_CFLAGS)" \
+	            LD_LIBRARY_PATH="$(GNB_LIBS)"
 	$(MAKE) -C $(FFTW_DIR)
 	$(MAKE) install -C $(FFTW_DIR)
 
@@ -90,8 +91,8 @@ $(INSTALL_DIR)/usr/lib/libsctp.so: $(GNB_TOOLCHAIN)
 				--enable-shared \
 				--enable-static \
 		        CC=$(GNB_CC) \
-	            CFLAGS=$(GNB_CFLAGS) \
-	            LD_LIBRARY_PATH=$(GNB_LIBS)
+	            CFLAGS="$(GNB_CFLAGS)" \
+	            LD_LIBRARY_PATH="$(GNB_LIBS)"
 	$(MAKE) -C $(LKSCTP_DIR)
 	$(MAKE) install -C $(LKSCTP_DIR)
 
@@ -110,8 +111,8 @@ $(INSTALL_DIR)/usr/lib/libmbedtls.so: $(GNB_TOOLCHAIN)
 	cmake $(MBEDTLS_DIR) \
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR)/usr \
 		-DCMAKE_C_COMPILER=$(GNB_CC) \
-		-DENABLE_TESTING=Off ..\
-		-DUSE_SHARED_MBEDTLS_LIBRARY=On ..\
+		-DENABLE_TESTING=Off \
+		-DUSE_SHARED_MBEDTLS_LIBRARY=On \
 		-DCMAKE_FIND_ROOT_PATH=$(BUILDROOT_DIR)/output/host/bin && \
 	cmake --build . && \
 	cmake --install .
@@ -158,6 +159,7 @@ $(INSTALL_DIR)/usr/lib/libgtest.a: $(GNB_TOOLCHAIN)
 gnb: $(INSTALL_DIR)/usr/bin/gnb
 
 $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
+	rm -rf $(SRSRAN_DIR)/build
 	mkdir -p $(SRSRAN_DIR)/build;
 	cd $(SRSRAN_DIR)/build && \
 	PKG_CONFIG_PATH="$(realpath $(INSTALL_DIR)/usr/lib/pkgconfig):$(realpath $(INSTALL_DIR)/usr/lib64/pkgconfig)" \
@@ -165,13 +167,15 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_PREFIX_PATH=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_FIND_ROOT_PATH=$(INSTALL_DIR)/usr/ \
+		-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
 		-DCMAKE_C_COMPILER=$(GNB_CC) \
         -DCMAKE_CXX_COMPILER=$(GNB_CXX) \
 		-DCMAKE_C_FLAGS="-Wno-error=sign-compare -Wno-error=enum-compare -Wno-error=shadow -Wno-error=subobject-linkage" \
 		-DCMAKE_CXX_FLAGS="-Wno-error=sign-compare -Wno-error=enum-compare -Wno-error=shadow -Wno-error=subobject-linkage" \
-        -DCMAKE_EXE_LINKER_FLAGS="-L$(INSTALL_DIR)/usr/lib -latomic -pthread" \
-		-DCMAKE_TOOLCHAIN_FILE=$(CHS_SW_DIR)/toolchain.cmake \
+        -DCMAKE_EXE_LINKER_FLAGS="-L$(INSTALL_DIR)/usr/lib -L$(INSTALL_DIR)/usr/lib64 -latomic -pthread" \
+		-DCMAKE_TOOLCHAIN_FILE=$(abspath $(CHS_SW_DIR)/toolchain.cmake) \
 		-DENABLE_CROSSCOMPILE=on \
+		-DMARCH=rv64gc \
 		-DENABLE_BACKWARD=off \
 		-DENABLE_UHD=off \
 		-DENABLE_ZEROMQ=off \
@@ -183,7 +187,7 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 	cmake --install .
 	mkdir -p $(INSTALL_DIR)/usr/share/srsran/benchmarks/
 	find $(SRSRAN_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;		
-	rsync -a $(INSTALL_DIR)/usr $(CVA6_DIR)/rootfs/usr
+	rsync -a $(INSTALL_DIR)/usr/ $(CVA6_DIR)/rootfs/usr
 
 gnb-clean:
 	rm -rf $(SRSRAN_DIR)/build
