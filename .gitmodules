@@ -6,6 +6,6 @@
 	path = sw/deps/cva6-sdk
 	url = https://github.com/pulp-platform/cva6-sdk.git
 	ignore = dirty
-[submodule "sw/deps/celeste"]
-	path = sw/deps/celeste
-	url = https://github.com/celeste-sat/celeste.git
+[submodule "sw/deps/srsRAN_Project"]
+	path = sw/deps/srsRAN_Project
+	url = https://github.com/mbertuletti/srsRAN_Project.git

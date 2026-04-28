@@ -130,10 +130,10 @@ $(foreach link,$(CHS_SW_LINK_MODES),$(eval $(call chs_sw_ld_elf_rule,$(link))))
 
 
 #############################
-# Build Celeste application #
+# Build srsRAN application #
 #############################
 
-include $(CHS_SW_DIR)/celeste.mk
+include $(CHS_SW_DIR)/srsran.mk
 
 ###################
 # GPT test images #

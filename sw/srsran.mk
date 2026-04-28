@@ -7,7 +7,7 @@ CVA6_DIR      := $(CHS_SW_DIR)/deps/cva6-sdk
 BUILDROOT_DIR := $(CVA6_DIR)/buildroot
 BUILD_DIR     := $(CHS_SW_DIR)/deps/build
 INSTALL_DIR   := $(CHS_SW_DIR)/deps/install
-CELESTE_DIR	  := $(CHS_SW_DIR)/deps/celeste
+SRSRAN_DIR	  := $(CHS_SW_DIR)/deps/srsRAN_Project
 
 # Cross-compiler
 GNB_CC        := $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-gcc
@@ -158,10 +158,10 @@ $(INSTALL_DIR)/usr/lib/libgtest.a: $(GNB_TOOLCHAIN)
 gnb: $(INSTALL_DIR)/usr/bin/gnb
 
 $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
-	mkdir -p $(CELESTE_DIR)/build;
-	cd $(CELESTE_DIR)/build && \
+	mkdir -p $(SRSRAN_DIR)/build;
+	cd $(SRSRAN_DIR)/build && \
 	PKG_CONFIG_PATH="$(realpath $(INSTALL_DIR)/usr/lib/pkgconfig):$(realpath $(INSTALL_DIR)/usr/lib64/pkgconfig)" \
-	cmake $(CELESTE_DIR) \
+	cmake $(SRSRAN_DIR) \
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_PREFIX_PATH=$(INSTALL_DIR)/usr/ \
 		-DCMAKE_FIND_ROOT_PATH=$(INSTALL_DIR)/usr/ \
@@ -182,11 +182,11 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 	cmake --build . --parallel $(shell nproc) && \
 	cmake --install .
 	mkdir -p $(INSTALL_DIR)/usr/share/srsran/benchmarks/
-	find $(CELESTE_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;		
+	find $(SRSRAN_DIR)/build/tests/ -type f -perm -111 -name '*_benchmark' -exec cp {} $(INSTALL_DIR)/usr/share/srsran/benchmarks/ \;		
 	rsync -a $(INSTALL_DIR)/usr $(CVA6_DIR)/rootfs/usr
 
 gnb-clean:
-	rm -rf $(CELESTE_DIR)/build
-	rm -rf $(CELESTE_DIR)/install
+	rm -rf $(SRSRAN_DIR)/build
+	rm -rf $(SRSRAN_DIR)/install
 	make -C $(BUILDROOT_DIR) distclean
 	make -C $(CVA6_DIR) clean
