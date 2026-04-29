@@ -3,6 +3,7 @@
 # Marco Bertuletti <mbertuletti@iis.ee.ethz.ch>
 
 # Project variables
+RVV 		  := 1
 CVA6_DIR      := $(abspath $(CHS_SW_DIR)/deps/cva6-sdk)
 BUILDROOT_DIR := $(CVA6_DIR)/buildroot
 BUILD_DIR     := $(abspath $(CHS_SW_DIR)/deps/build)
@@ -16,12 +17,18 @@ GNB_CXX       := $(abspath $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-li
 GNB_CFLAGS    := -march=rv64gc -I$(BUILDROOT_DIR)/output/host/include
 GNB_LIBS      := $(BUILDROOT_DIR)/output/host/lib:$(BUILDROOT_DIR)/output/host/lib64
 
+ifeq ($(RVV), 1)
+buildroot_defconfig = $(CVA6_DIR)/configs/buildroot64_V_defconfig
+else
+buildroot_defconfig = $(CVA6_DIR)/configs/buildroot64_defconfig
+endif
+
 # Build toolchain
 GNB_TOOLCHAIN := $(GNB_CC) $(GNB_CXX)
 $(GNB_TOOLCHAIN):
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(INSTALL_DIR)
-	make -C $(BUILDROOT_DIR) defconfig BR2_DEFCONFIG=$(CVA6_DIR)/configs/buildroot64_defconfig
+	make -C $(BUILDROOT_DIR) defconfig BR2_DEFCONFIG=$(buildroot_defconfig)
 	make -C $(BUILDROOT_DIR) -j $(shell nproc)
 
 # FFTW variables
