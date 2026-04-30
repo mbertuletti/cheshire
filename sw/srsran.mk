@@ -3,7 +3,8 @@
 # Marco Bertuletti <mbertuletti@iis.ee.ethz.ch>
 
 # Project variables
-RVV 		  := 1
+# Set `RVV=0` to build for `rv64gc` (no vector instructions).
+RVV 		  ?= 1
 CVA6_DIR      := $(abspath $(CHS_SW_DIR)/deps/cva6-sdk)
 BUILDROOT_DIR := $(CVA6_DIR)/buildroot
 BUILD_DIR     := $(abspath $(CHS_SW_DIR)/deps/build)
@@ -11,10 +12,17 @@ INSTALL_DIR   := $(abspath $(CHS_SW_DIR)/deps/install)
 SRSRAN_DIR	  := $(abspath $(CHS_SW_DIR)/deps/srsRAN_Project)
 CCACHE_DIR    ?= $(BUILD_DIR)/ccache
 
+# ISA string used across dependencies and srsRAN (CMake `-DMARCH=...`).
+ifeq ($(RVV), 1)
+GNB_MARCH     := rv64gcv
+else
+GNB_MARCH     := rv64gc
+endif
+
 # Cross-compiler
 GNB_CC        := $(abspath $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-gcc)
 GNB_CXX       := $(abspath $(BUILDROOT_DIR)/output/host/bin/riscv64-buildroot-linux-gnu-g++)
-GNB_CFLAGS    := -march=rv64gc -I$(BUILDROOT_DIR)/output/host/include
+GNB_CFLAGS    := -march=$(GNB_MARCH) -I$(BUILDROOT_DIR)/output/host/include
 GNB_LIBS      := $(BUILDROOT_DIR)/output/host/lib:$(BUILDROOT_DIR)/output/host/lib64
 
 ifeq ($(RVV), 1)
@@ -181,8 +189,8 @@ $(INSTALL_DIR)/usr/bin/gnb: $(GNB_TOOLCHAIN) $(GNB_DEPS)
 		-DCMAKE_CXX_FLAGS="-Wno-error=sign-compare -Wno-error=enum-compare -Wno-error=shadow -Wno-error=subobject-linkage" \
         -DCMAKE_EXE_LINKER_FLAGS="-L$(INSTALL_DIR)/usr/lib -L$(INSTALL_DIR)/usr/lib64 -latomic -pthread" \
 		-DCMAKE_TOOLCHAIN_FILE=$(abspath $(CHS_SW_DIR)/toolchain.cmake) \
-		-DENABLE_CROSSCOMPILE=on \
-		-DMARCH=rv64gc \
+		-DRISCV_CROSSCOMPILE=on \
+		-DMARCH=$(GNB_MARCH) \
 		-DENABLE_BACKWARD=off \
 		-DENABLE_UHD=off \
 		-DENABLE_ZEROMQ=off \
