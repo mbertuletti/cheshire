@@ -43,15 +43,15 @@ LKSCTP_DIR := $(BUILD_DIR)/lksctp-tools
 GOOGLETEST_URL := https://github.com/google/googletest.git
 GOOGLETEST_DIR := $(BUILD_DIR)/googletest
 
-GNB_DEPS := $(INSTALL_DIR)/install/usr/lib/libfftw3f.so
+GNB_DEPS := $(INSTALL_DIR)/usr/lib/libfftw3f.so
 GNB_DEPS += $(INSTALL_DIR)/usr/lib/libsctp.so
-GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libmbedtls.so
-GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libyaml-cpp.so
-GNB_DEPS += $(INSTALL_DIR)/install/usr/lib/libgtest.a
+GNB_DEPS += $(INSTALL_DIR)/usr/lib/libmbedtls.so
+GNB_DEPS += $(INSTALL_DIR)/usr/lib/libyaml-cpp.so
+GNB_DEPS += $(INSTALL_DIR)/usr/lib/libgtest.a
 
 # Install FFTW
 
-$(INSTALL_DIR)/install/usr/lib/libfftw3f.so: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/usr/lib/libfftw3f.so: $(GNB_TOOLCHAIN)
 	@if [ ! -d $(FFTW_DIR) ]; then \
 	  echo "Downloading FFTW..."; \
 	  wget -P $(BUILD_DIR) $(FFTW_URL); \
@@ -97,7 +97,7 @@ $(INSTALL_DIR)/usr/lib/libsctp.so: $(GNB_TOOLCHAIN)
 
 # Install MBEDTLS
 
-$(INSTALL_DIR)/install/usr/lib/libmbedtls.so: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/usr/lib/libmbedtls.so: $(GNB_TOOLCHAIN)
 	@if [ ! -d "$(MBEDTLS_DIR)" ]; then \
 	    git clone --branch v3.6.3 $(MBEDTLS_URL) $(MBEDTLS_DIR); \
 	else \
@@ -118,7 +118,7 @@ $(INSTALL_DIR)/install/usr/lib/libmbedtls.so: $(GNB_TOOLCHAIN)
 
 # Install YAML-CPP
 
-$(INSTALL_DIR)/install/usr/lib/libyaml-cpp.so: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/usr/lib/libyaml-cpp.so: $(GNB_TOOLCHAIN)
 	@if [ ! -d "$(YAMLCPP_DIR)" ]; then \
 	    git clone $(YAMLCPP_URL) $(YAMLCPP_DIR); \
 	else \
@@ -137,7 +137,7 @@ $(INSTALL_DIR)/install/usr/lib/libyaml-cpp.so: $(GNB_TOOLCHAIN)
 
 # Install Google-Tests
 
-$(INSTALL_DIR)/install/usr/lib/libgtest.a: $(GNB_TOOLCHAIN)
+$(INSTALL_DIR)/usr/lib/libgtest.a: $(GNB_TOOLCHAIN)
 	@if [ ! -d "$(GOOGLETEST_DIR)" ]; then \
 	    git clone $(GOOGLETEST_URL) $(GOOGLETEST_DIR); \
 	else \
